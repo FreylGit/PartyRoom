@@ -8,5 +8,7 @@ namespace PartyRoom.Domain.Entities
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
         public DateTime DateRegistration { get; set; }
+        public ICollection<Room> CreatedRooms { get; set; }
+        public ICollection<UserRoom> UserRoom { get; set; } 
     }
 }

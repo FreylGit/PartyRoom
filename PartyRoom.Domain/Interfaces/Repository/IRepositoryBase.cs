@@ -1,4 +1,4 @@
-﻿namespace PartyRoom.Domain.Interfaces
+﻿namespace PartyRoom.Domain.Interfaces.Repository
 {
     public interface IRepositoryBase<T> where T : class
     {

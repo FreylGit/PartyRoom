@@ -18,7 +18,7 @@ namespace PartyRoom.WebAPI.Services
         {
             var claims = pronicpal.ToList();
 
-            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.Add(new Claim("Username", user.UserName));
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
             var jwt = new JwtSecurityToken(
                issuer: _jwtSettings.Issuer,
@@ -28,6 +28,14 @@ namespace PartyRoom.WebAPI.Services
                notBefore: DateTime.UtcNow,
                signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256));
             return new JwtSecurityTokenHandler().WriteToken(jwt);
+        }
+        public Guid GetUserIdByToken(HttpContext context)
+        {
+            var jwtToken = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(jwtToken);
+            var userId = new Guid(token.Claims.First(claim => claim.Type == "Id").Value);
+            return userId;
         }
     }
 }

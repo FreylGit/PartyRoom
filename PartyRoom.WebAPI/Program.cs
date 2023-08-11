@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PartyRoom.Domain.Entities;
-using PartyRoom.Domain.Interfaces;
+using PartyRoom.Domain.Interfaces.Repository;
+using PartyRoom.Domain.Interfaces.Services;
 using PartyRoom.Domain.Services;
 using PartyRoom.Infrastructure.Data;
+using PartyRoom.Infrastructure.Repositories;
 using PartyRoom.WebAPI;
 using PartyRoom.WebAPI.MappingProfiles.EntityToDto;
 using PartyRoom.WebAPI.Services;
@@ -81,7 +83,11 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddAutoMapper(typeof(UserMappingProfile));
 builder.Services.AddSingleton<JwtService>();
-builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IUserRoomRepository,UserRoomRepository>();
+
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {

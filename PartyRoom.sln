@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartyRoom.Infrastructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartyRoom.WebAPI", "PartyRoom.WebAPI\PartyRoom.WebAPI.csproj", "{ED1E0549-9C1D-45AC-95C2-FFCB467ED868}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatyRoom.LoadData", "PatyRoom.LoadData\PatyRoom.LoadData.csproj", "{76754D9A-981D-495A-A192-854F26EE3A33}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PartyRoom.Contracts", "PartyRoom.Contracts\PartyRoom.Contracts.csproj", "{3D23578B-71DD-495D-98C6-A78A1FC44DD1}"
 EndProject
 Global
@@ -31,10 +29,6 @@ Global
 		{ED1E0549-9C1D-45AC-95C2-FFCB467ED868}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED1E0549-9C1D-45AC-95C2-FFCB467ED868}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED1E0549-9C1D-45AC-95C2-FFCB467ED868}.Release|Any CPU.Build.0 = Release|Any CPU
-		{76754D9A-981D-495A-A192-854F26EE3A33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{76754D9A-981D-495A-A192-854F26EE3A33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{76754D9A-981D-495A-A192-854F26EE3A33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{76754D9A-981D-495A-A192-854F26EE3A33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3D23578B-71DD-495D-98C6-A78A1FC44DD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3D23578B-71DD-495D-98C6-A78A1FC44DD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D23578B-71DD-495D-98C6-A78A1FC44DD1}.Release|Any CPU.ActiveCfg = Release|Any CPU

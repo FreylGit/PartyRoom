@@ -102,7 +102,7 @@ namespace PartyRoom.WebAPI.Controllers
         {
             try
             {
-                var rooms = await _roomService.GetRoomsByUserAsync(userId);
+                var rooms = await _roomService.GetRoomsByUserIdAsync(userId);
                 return Ok(rooms);
             }
             catch (ArgumentNullException)
@@ -125,7 +125,7 @@ namespace PartyRoom.WebAPI.Controllers
             var userId = _jwtService.GetUserIdByToken(HttpContext);
             try
             {
-                var rooms = await _roomService.GetRoomsByUserAsync(userId);
+                var rooms = await _roomService.GetRoomsByUserIdAsync(userId);
                 return Ok(rooms);
             }
             catch (ArgumentNullException)
@@ -147,7 +147,7 @@ namespace PartyRoom.WebAPI.Controllers
         {
             try
             {
-                await _roomService.DeleteUserFromRoomAsync(userId, roomId);
+                await _roomService.DisconnectUserFromRoom(userId, roomId);
                 return Ok();
             }
             catch (ArgumentNullException)
@@ -170,7 +170,7 @@ namespace PartyRoom.WebAPI.Controllers
             var userId = _jwtService.GetUserIdByToken(HttpContext);
             try
             {
-                await _roomService.DeleteUserFromRoomAsync(userId, roomId);
+                await _roomService.DisconnectUserFromRoom(userId, roomId);
                 return Ok();
             }
             catch (ArgumentNullException)

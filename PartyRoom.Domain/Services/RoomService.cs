@@ -47,7 +47,6 @@ namespace PartyRoom.Domain.Services
             {
                 throw new InvalidOperationException(ExceptionMessages.CreationFailed);
             }
-
         }
 
         public async Task DeleteRoomAsync(Guid roomId)
@@ -58,6 +57,11 @@ namespace PartyRoom.Domain.Services
             }
 
             var userRooms = _userRoomRepository.GetUserRooms(roomId);
+            if (userRooms ==null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+
             if (!await _userRoomRepository.DeleteUserRoomsAsync(userRooms))
             {
                 throw new InvalidOperationException(ExceptionMessages.DeletionFailed);
@@ -73,23 +77,23 @@ namespace PartyRoom.Domain.Services
             }
         }
 
-        public async Task DeleteUserFromRoomAsync(Guid userId, Guid roomId)
+        public async Task DisconnectUserFromRoom(Guid userId, Guid roomId)
         {
             if (userId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(userId));
             }
-            if (!await _roomRepository.ExistsUserInRoomAsync(userId))
+            if (!await _userRoomRepository.ExistsUserInRoomAsync(userId,roomId))
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
-            if (!await _roomRepository.DeleteUserFromRoomAsync(userId, roomId))
+            if (!await _userRoomRepository.DeleteUserInRoom(userId, roomId))
             {
                 throw new InvalidOperationException(ExceptionMessages.DeletionFailed);
             }
         }
 
-        public async Task<IEnumerable<RoomDto>> GetRoomsByUserAsync(Guid userId)
+        public async Task<IEnumerable<RoomDto>> GetRoomsByUserIdAsync(Guid userId)
         {
             if (userId == Guid.Empty)
             {
@@ -100,7 +104,7 @@ namespace PartyRoom.Domain.Services
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
-            var rooms = await _roomRepository.GetRoomsByUserIdAsync(userId);
+            var rooms = await _userRoomRepository.GetRoomsByUserIdAsync(userId);
             var roomsMap = _mapper.Map<IEnumerable<RoomDto>>(rooms);
             if (roomsMap == null)
             {
@@ -120,7 +124,7 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
 
-            var users = await _roomRepository.GetUsersByRoomAsync(roomId);
+            var users = await _userRoomRepository.GetUsersAsync(roomId);
             var usersMap = _mapper.Map<IEnumerable<PublicUserDTO>>(users);
 
             if (usersMap == null)
@@ -137,23 +141,30 @@ namespace PartyRoom.Domain.Services
             {
                 throw new ArgumentNullException(nameof(connectLink) + " " + nameof(userId));
             }
-            var userFind = await _userManager.FindByIdAsync(userId.ToString());
-            if (userFind == null)
-            {
-                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
-            }
+            // Проверка на существование ссылки в бд
             if (!await _roomRepository.ExistsLinkAsync(connectLink))
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
 
+            var userFind = await _userManager.FindByIdAsync(userId.ToString());
+            if (userFind == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+            // Получаем комнату по ссылке
             var room = await _roomRepository.GetRoomByLinkAsync(connectLink);
             if (room == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
-            var userRoom = new UserRoom { Room = room, User = userFind };
+            //Проверка eсли пользватель находитсья в комтане
+            if( await _userRoomRepository.ExistsUserInRoomAsync(userId, room.Id))
+            {
+                throw new InvalidOperationException(ExceptionMessages.CreationFailed);
+            }
 
+            var userRoom = new UserRoom { Room = room, User = userFind };
             if (!(await _userRoomRepository.CreateAsync(userRoom)))
             {
                 throw new InvalidOperationException(ExceptionMessages.CreationFailed);
@@ -173,7 +184,7 @@ namespace PartyRoom.Domain.Services
                 .Replace("=", "")
                 .Substring(0, length);
 
-            while (await _roomRepository.SlugExistsAsync(slug))
+            while (await _roomRepository.ExistsLinkAsync(slug))
             {
                 rng.GetBytes(bytes);
                 slug = Convert.ToBase64String(bytes)

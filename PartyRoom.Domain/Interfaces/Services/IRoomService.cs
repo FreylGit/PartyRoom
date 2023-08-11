@@ -8,8 +8,8 @@ namespace PartyRoom.Domain.Interfaces.Services
         public Task CreateRoomAsync(RoomCreateDTO createModel, Guid authorId);
         public Task JoinToRoomAsync(string connectLink, Guid userId);
         public Task<IEnumerable<PublicUserDTO>> GetUsersByRoomAsync(Guid roomId);
-        public Task<IEnumerable<RoomDto>> GetRoomsByUserAsync(Guid userId);
-        public Task DeleteUserFromRoomAsync(Guid userId, Guid id);
+        public Task<IEnumerable<RoomDto>> GetRoomsByUserIdAsync(Guid userId);
+        public Task DisconnectUserFromRoom(Guid userId, Guid id);
         public Task DeleteRoomAsync(Guid roomId);
     }
 }

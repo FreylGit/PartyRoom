@@ -7,15 +7,17 @@ namespace PartyRoom.Infrastructure.Data
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         public DbSet<Room> Rooms { get; set; }
-        public DbSet<UserRoom> UserRoom{ get; set; }
+        public DbSet<UserRoom> UserRoom { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            CreateRole(modelBuilder);
+
 
             modelBuilder.Entity<Room>()
                 .HasOne(r => r.Author)
@@ -37,7 +39,14 @@ namespace PartyRoom.Infrastructure.Data
                 .WithMany(r => r.UserRoom)
                 .HasForeignKey(ur => ur.RoomId)
                 .OnDelete(DeleteBehavior.NoAction);
+        }
 
+        private static void CreateRole(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ApplicationRole>().HasData(
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "Admin", NormalizedName = "ADMIN" },
+            new ApplicationRole { Id = Guid.NewGuid(), Name = "User", NormalizedName = "USER" }
+    );
         }
     }
 }

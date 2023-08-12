@@ -27,23 +27,23 @@ namespace PartyRoom.WebAPI.Controllers
             try
             {
                 await _roomService.CreateRoomAsync(createModel, userId);
-                return Ok();
+                return Ok("Комната создана");
             }
             catch (ArgumentNullException)
             {
-                return BadRequest();
+                return BadRequest("Не удалось создать комнату, model is null");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
-                return NotFound();
+                return NotFound("Нет такого пользователя");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
             {
-                return BadRequest();
+                return BadRequest("Ошибка сервера, не удалось смаппить данные");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
             {
-                return BadRequest();
+                return BadRequest("Не удалось создать комнату");
             }
         }
 
@@ -55,7 +55,7 @@ namespace PartyRoom.WebAPI.Controllers
             try
             {
                 await _roomService.JoinToRoomAsync(link, userId);
-                return Ok();
+                return Ok("Удалось подключиться к комнате");
             }
             catch (ArgumentNullException)
             {

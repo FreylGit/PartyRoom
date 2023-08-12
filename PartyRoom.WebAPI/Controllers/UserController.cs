@@ -117,7 +117,7 @@ namespace PartyRoom.WebAPI.Controllers
             }
             catch
             {
-                return BadRequest();
+                return BadRequest("Ошибка при создании роли");
             }
         }
     }

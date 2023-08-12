@@ -10,5 +10,6 @@ namespace PartyRoom.Domain.Entities
         public DateTime DateRegistration { get; set; }
         public ICollection<Room> CreatedRooms { get; set; }
         public ICollection<UserRoom> UserRoom { get; set; } 
+
     }
 }

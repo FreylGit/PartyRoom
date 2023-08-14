@@ -1,16 +1,10 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PartyRoom.Domain.Entities;
-using PartyRoom.Domain.Interfaces;
-using PartyRoom.Domain.Services;
 using PartyRoom.Infrastructure.Data;
 using PartyRoom.WebAPI;
-using PartyRoom.WebAPI.MappingProfiles.EntityToDto;
-using PartyRoom.WebAPI.Services;
-using System.Text;
+using PartyRoom.WebAPI.Extensions;
+using PartyRoom.WebAPI.MappingProfiles.RoomMapping;
+using PartyRoom.WebAPI.MappingProfiles.UserMapping;
 
 var builder = WebApplication.CreateBuilder(args);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -47,41 +41,16 @@ builder.Services.AddSwaggerGen(c =>
             }
         });
 });
-
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("PartyRoom.Infrastructure")));
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-      .AddEntityFrameworkStores<ApplicationDbContext>()
-      .AddDefaultTokenProviders();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-})
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings.Issuer,
-            ValidAudience = jwtSettings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-        };
-    });
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("User", policyBuilder => policyBuilder.RequireClaim("Role", "User"));
-});
+builder.Services.AddCustomIdentity();
+builder.Services.AddCustomAuthentication(jwtSettings);
+builder.Services.AddCustomAuthorization();
+builder.Services.AddAutoMapper(typeof(UserMappingProfile), typeof(RoomMappingProfile));
+builder.Services.AddRepositories();
+builder.Services.AddServices();
 
-
-builder.Services.AddAutoMapper(typeof(UserMappingProfile));
-builder.Services.AddSingleton<JwtService>();
-builder.Services.AddTransient<IUserService, UserService>();
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {

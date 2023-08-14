@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain.Entities;
-using PartyRoom.Domain.Interfaces;
+using PartyRoom.Domain.Interfaces.Services;
 using System.Security.Claims;
 
 namespace PartyRoom.Domain.Services
@@ -25,17 +25,20 @@ namespace PartyRoom.Domain.Services
 
         public IQueryable<ApplicationRole> Roles => _roleManager.Roles;
 
-        public async Task CreateRoleAsync(ApplicationRole createModel)
+        public async Task CreateRoleAsync(string roleName)
         {
-            if (createModel == null)
+            if (string.IsNullOrEmpty(roleName) )
             {
-                throw new ArgumentNullException(nameof(createModel));
+                throw new ArgumentNullException(nameof(roleName));
             }
-            if ((await _roleManager.FindByNameAsync(createModel.Name)).Equals(createModel.Name))
+            var roleFind = await _roleManager.FindByNameAsync(roleName);
+
+            if (roleFind!=null)
             {
                 throw new InvalidOperationException(ExceptionMessages.DuplicateItem);
             }
-            var result = await _roleManager.CreateAsync(createModel);
+            var role = new ApplicationRole { Name = roleName };
+            var result = await _roleManager.CreateAsync(role);
             if (!result.Succeeded)
             {
                 throw new InvalidOperationException(ExceptionMessages.CreationFailed);

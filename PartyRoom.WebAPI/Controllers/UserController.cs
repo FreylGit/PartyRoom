@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain;
 using PartyRoom.Domain.Entities;
-using PartyRoom.Domain.Interfaces;
+using PartyRoom.Domain.Interfaces.Services;
 using PartyRoom.WebAPI.Services;
 
 namespace PartyRoom.WebAPI.Controllers
@@ -69,7 +68,8 @@ namespace PartyRoom.WebAPI.Controllers
                 var user = await _userService.LoginAsync(loginModel);
                 var claims = await _userManager.GetClaimsAsync(user);
                 var token = _jwtService.GetToken(user, claims);
-                return Ok(new { Token = token });
+                //return Ok(new { Token = token });
+                return Ok(token);
             }
             catch (ArgumentNullException)
             {
@@ -77,14 +77,14 @@ namespace PartyRoom.WebAPI.Controllers
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
-                return StatusCode(400,"Не удалось найти пользователя с таким логином и паролем");
+                return StatusCode(400, "Не удалось найти пользователя с таким логином и паролем");
             }
             catch (Exception)
             {
                 return StatusCode(500, "Произошла ошибка при создании токена");
             }
         }
- 
+
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -104,6 +104,20 @@ namespace PartyRoom.WebAPI.Controllers
             catch (Exception)
             {
                 return StatusCode(500, "Произошла ошибка при удалении пользователя");
+            }
+        }
+
+        [HttpPost("CreateRole")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            try
+            {
+                await _userService.CreateRoleAsync(roleName);
+                return Ok("Роль создана");
+            }
+            catch
+            {
+                return BadRequest("Ошибка при создании роли");
             }
         }
     }

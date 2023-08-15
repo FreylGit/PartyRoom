@@ -11,5 +11,6 @@ namespace PartyRoom.Domain.Interfaces.Repository
         public Task<bool> ExistsUserInRoomAsync(Guid userId,Guid roomId);
         public Task<IEnumerable<ApplicationUser>> GetUsersAsync(Guid roomId);
         public Task<IEnumerable<Room>> GetRoomsByUserIdAsync(Guid userId);
+        public Task<bool> UpdateAsync(List<UserRoom> userRooms);
     }
 }

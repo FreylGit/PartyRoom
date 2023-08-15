@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PartyRoom.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PartyRoom.Infrastructure.Data;
 namespace PartyRoom.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230812203016_AddPropDetinationUserIdFromUserRoom")]
+    partial class AddPropDetinationUserIdFromUserRoom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,13 +158,13 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("67de806f-338c-418d-bbe1-563d64406704"),
+                            Id = new Guid("4f70b23c-1e7f-4b2c-95d6-985f25949d46"),
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("681aac16-9f08-4fca-90f2-5c099f23d30c"),
+                            Id = new Guid("c3d52a0a-6813-407c-bfa1-671ad1e78f1d"),
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -258,9 +261,6 @@ namespace PartyRoom.Infrastructure.Migrations
 
                     b.Property<DateTime>("FinishDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsStarted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Link")
                         .IsRequired()

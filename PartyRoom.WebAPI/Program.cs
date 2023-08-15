@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PartyRoom.Domain.Interfaces.Services;
+using PartyRoom.Domain.Services;
 using PartyRoom.Infrastructure.Data;
 using PartyRoom.WebAPI;
 using PartyRoom.WebAPI.Extensions;
@@ -50,6 +52,10 @@ builder.Services.AddCustomAuthorization();
 builder.Services.AddAutoMapper(typeof(UserMappingProfile), typeof(RoomMappingProfile));
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+
+builder.Services.AddHostedService<RoomLogicBackgroundService>();
+
+
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

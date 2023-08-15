@@ -120,6 +120,13 @@ namespace PartyRoom.WebAPI.Controllers
                 return BadRequest("Ошибка при создании роли");
             }
         }
+
+        [HttpPost("CreateTestUsers")]
+        public async Task<IActionResult> CreateTestUsers()
+        {
+            await _userService.CreateTestUsers();
+            return Ok("Тестовые пользователи загрузились");
+        }
     }
 }
 

@@ -207,5 +207,12 @@ namespace PartyRoom.WebAPI.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpPost("CreateTestRoom")]
+        public async Task<IActionResult> CreateTestRoom()
+        {
+            await _roomService.CreateTestRoomAsync();
+            return Ok();
+        }
     }
 }

@@ -11,5 +11,8 @@ namespace PartyRoom.Domain.Interfaces.Services
         public Task<IEnumerable<RoomDto>> GetRoomsByUserIdAsync(Guid userId);
         public Task DisconnectUserFromRoom(Guid userId, Guid id);
         public Task DeleteRoomAsync(Guid roomId);
+        public Task CheckStartRoomsAsync(CancellationToken stoppingToken);
+
+        public Task CreateTestRoomAsync();
     }
 }

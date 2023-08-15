@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using PartyRoom.Contracts.DTOs.Room;
 using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain.Entities;
@@ -171,6 +172,55 @@ namespace PartyRoom.Domain.Services
             }
         }
 
+        public async Task CheckStartRoomsAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var currentDate = DateTime.Now;
+
+                var roomsToProcess = await  _roomRepository.Rooms
+                    .Where(room => room.StartDate <= currentDate && room.IsStarted == false)
+                    .ToListAsync(stoppingToken);
+
+                foreach (var room in roomsToProcess)
+                {
+                    // Устанавливаем что комната запущена
+                    room.IsStarted = true;
+                    // Формируем пользователям их дарящих
+                    await FormationDestinationUser(room.Id);
+                    await _roomRepository.UpdateAsync(room);
+                }
+
+                // Ожидание некоторое время перед следующей проверкой 
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            }
+        }
+        public async Task FormationDestinationUser(Guid roomId)
+        {
+            var userRooms = await _userRoomRepository.UserRooms.Where(ur => ur.RoomId == roomId).ToListAsync();
+            var users = userRooms.Select(u=>u.UserId);
+
+            List<Guid> availableDestinations = new List<Guid>(userRooms.Count);
+            foreach(var userRoom in userRooms) 
+            {
+                availableDestinations.Add(userRoom.UserId);
+            }
+            Random random = new Random();
+            foreach (var userRoom  in userRooms)
+            {
+                int randomIndex = random.Next(availableDestinations.Count);
+                // Исключаем возможность выбора текущего UserId в качестве DestinationUserId
+                if (userRoom.UserId == availableDestinations[randomIndex])
+                {
+                    randomIndex = (randomIndex + 1) % availableDestinations.Count;
+                }
+                availableDestinations.RemoveAt(randomIndex);
+            }
+            if(! await _userRoomRepository.UpdateAsync(userRooms)) 
+            {
+                throw new  InvalidOperationException(ExceptionMessages.UpdateFailed);
+            }
+        }
         private async Task<string> GenerateUniqueSlug()
         {
             var length = 12;
@@ -195,6 +245,29 @@ namespace PartyRoom.Domain.Services
             }
 
             return slug;
+        }
+
+        public async Task CreateTestRoomAsync()
+        {
+            var author = _userManager.Users.FirstOrDefault(); 
+            var room = new Room { Author = author,
+                AuthorId = author.Id,
+                Name = "Тестовая комната",
+                Price = 500,
+                Type = "Private",
+                StartDate = DateTime.Now.AddMinutes(3),
+                FinishDate = DateTime.Now.AddMinutes(20)
+            };
+            string roomSlug = await GenerateUniqueSlug();
+            room.Link = roomSlug;
+            await _roomRepository.CreateAsync(room);
+
+            var users = _userManager.Users.ToList();
+            users.Remove(author);
+            foreach (var user in users)
+            {
+                await _userRoomRepository.CreateAsync(new UserRoom { Room = room, UserId = user.Id });
+            }
         }
     }
 }

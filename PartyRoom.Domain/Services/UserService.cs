@@ -27,13 +27,13 @@ namespace PartyRoom.Domain.Services
 
         public async Task CreateRoleAsync(string roleName)
         {
-            if (string.IsNullOrEmpty(roleName) )
+            if (string.IsNullOrEmpty(roleName))
             {
                 throw new ArgumentNullException(nameof(roleName));
             }
             var roleFind = await _roleManager.FindByNameAsync(roleName);
 
-            if (roleFind!=null)
+            if (roleFind != null)
             {
                 throw new InvalidOperationException(ExceptionMessages.DuplicateItem);
             }
@@ -42,6 +42,31 @@ namespace PartyRoom.Domain.Services
             if (!result.Succeeded)
             {
                 throw new InvalidOperationException(ExceptionMessages.CreationFailed);
+            }
+        }
+
+        public async Task CreateTestUsers()
+        {
+            var users = new List<ApplicationUser>();
+            for (int i = 1; i <= 20; i++)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = $"user{i}@example.com",
+                    FirstName = $"FirstName{i}",
+                    LastName = $"LastName{i}",
+                    DateOfBirth = DateTime.Now.AddYears(-25).AddDays(i), 
+                    DateRegistration = DateTime.UtcNow
+                };
+
+                users.Add(user);
+            }
+
+            var role = _roleManager.Roles.FirstOrDefault(r => r.Name == "User");
+            foreach (var user in users)
+            {
+                await _userManager.CreateAsync(user, "Qwer123@!ferwWW");
+                await _userManager.AddToRoleAsync(user,role.Name);
             }
         }
 
@@ -219,8 +244,8 @@ namespace PartyRoom.Domain.Services
                 throw new ArgumentNullException(nameof(loginModel));
             }
             var userFind = await _userManager.FindByEmailAsync(loginModel.Email);
-            var result = await _signInManager.PasswordSignInAsync(userFind, loginModel.Password,false,false);
-            if(!result.Succeeded) 
+            var result = await _signInManager.PasswordSignInAsync(userFind, loginModel.Password, false, false);
+            if (!result.Succeeded)
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }

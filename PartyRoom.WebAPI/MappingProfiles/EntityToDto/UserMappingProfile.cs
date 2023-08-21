@@ -18,7 +18,7 @@ namespace PartyRoom.WebAPI.MappingProfiles.EntityToDto
                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
 
-            CreateMap<PublicUserDTO, ApplicationUser>()
+            CreateMap<UserPublicDTO, ApplicationUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
@@ -37,7 +37,7 @@ namespace PartyRoom.WebAPI.MappingProfiles.EntityToDto
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
 
-            CreateMap<ApplicationUser, PublicUserDTO>()
+            CreateMap<ApplicationUser, UserPublicDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
@@ -59,13 +59,11 @@ namespace PartyRoom.WebAPI.MappingProfiles.EntityToDto
             CreateMap<Room, RoomDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
             CreateMap<RoomDto, Room>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
             CreateMap<RoomCreateDTO, Room>();
 
         }

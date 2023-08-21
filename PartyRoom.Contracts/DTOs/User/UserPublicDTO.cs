@@ -1,6 +1,6 @@
 ﻿namespace PartyRoom.Contracts.DTOs.User
 {
-    public class PublicUserDTO
+    public class UserPublicDTO
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }

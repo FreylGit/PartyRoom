@@ -4,7 +4,7 @@ namespace PartyRoom.Domain.Interfaces.Services
 {
     public interface IProfileService
     {
-        public Task<UserProfileDTO> GetCurrentProfile(Guid userId);
-        public Task<PublicUserDTO> GetPublicUserProfile(Guid userId);
+        public Task<UserProfileDTO> GetCurrentProfileAsync(Guid userId);
+        public Task<UserPublicDTO> GetPublicUserProfileAsync(Guid userId);
     }
 }

@@ -56,7 +56,7 @@ namespace PartyRoom.Domain.Services
                     Email = $"user{i}@example.com",
                     FirstName = $"FirstName{i}",
                     LastName = $"LastName{i}",
-                    DateOfBirth = DateTime.Now.AddYears(-25).AddDays(i), 
+                    DateOfBirth = DateTime.Now.AddYears(-25).AddDays(i),
                     DateRegistration = DateTime.UtcNow
                 };
 
@@ -65,11 +65,26 @@ namespace PartyRoom.Domain.Services
 
             var role = _roleManager.Roles.FirstOrDefault(r => r.Name == "User");
             var password = "Qwer123@!ferwWW";
+
             foreach (var user in users)
             {
+
                 await _userManager.CreateAsync(user, password);
-                await _userManager.AddToRoleAsync(user,role.Name);
+                await _userManager.AddToRoleAsync(user, role.Name);
+
             }
+            foreach (var user in users)
+            {
+                var userFind = await _userManager.FindByEmailAsync(user.Email);
+                List<Claim> claims = new List<Claim>
+                {
+                    new Claim("Role", role.Name),
+                    new Claim("Username", user.UserName),
+                    new Claim("Id", userFind.Id.ToString())
+                };
+                await _userManager.AddClaimsAsync(userFind, claims);
+            }
+
         }
 
         public async Task CreateUserAsync(UserRegistrationDTO createModel)
@@ -101,10 +116,12 @@ namespace PartyRoom.Domain.Services
 
             await _userManager.AddToRoleAsync(userMap, role.Name);
             var userId = await _userManager.GetUserIdAsync(userMap);
-            List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim("Role", role.Name));
-            claims.Add(new Claim("Username", userMap.UserName));
-            claims.Add(new Claim("Id", userId));
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim("Role", role.Name),
+                new Claim("Username", userMap.UserName),
+                new Claim("Id", userId)
+            };
 
             await _userManager.AddClaimsAsync(userMap, claims);
         }
@@ -186,7 +203,7 @@ namespace PartyRoom.Domain.Services
             return roles;
         }
 
-        public async Task<PublicUserDTO> GetUserByIdAsync(Guid id)
+        public async Task<UserPublicDTO> GetUserByIdAsync(Guid id)
         {
             if (id == Guid.Empty)
             {
@@ -198,7 +215,7 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
 
-            var userMap = _mapper.Map<PublicUserDTO>(user);
+            var userMap = _mapper.Map<UserPublicDTO>(user);
             if (userMap == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.MappingFailed);
@@ -207,7 +224,7 @@ namespace PartyRoom.Domain.Services
             return userMap;
         }
 
-        public async Task<PublicUserDTO> GetUserByNameAsync(string username)
+        public async Task<UserPublicDTO> GetUserByNameAsync(string username)
         {
             if (string.IsNullOrEmpty(username))
             {
@@ -220,7 +237,7 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
 
-            var userMap = _mapper.Map<PublicUserDTO>(user);
+            var userMap = _mapper.Map<UserPublicDTO>(user);
             if (userMap == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.MappingFailed);
@@ -272,7 +289,7 @@ namespace PartyRoom.Domain.Services
             }
         }
 
-        public async Task UpdateUserAsync(PublicUserDTO updateModel)
+        public async Task UpdateUserAsync(UserPublicDTO updateModel)
         {
             if (updateModel == null)
             {

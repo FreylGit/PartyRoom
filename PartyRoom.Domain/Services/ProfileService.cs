@@ -15,16 +15,44 @@ namespace PartyRoom.Domain.Services
             _mapper = mapper;
             _userRepository = userRepository;
         }
-        public async Task<UserProfileDTO> GetCurrentProfile(Guid userId)
+        public async Task<UserProfileDTO> GetCurrentProfileAsync(Guid userId)
         {
+            if (userId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
             var userProfile = await _userRepository.GetProfileAsync(userId);
+            if (userProfile == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
             var userProfileMap = _mapper.Map<UserProfileDTO>(userProfile);
+            if(userProfileMap == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
+            }
             return userProfileMap;
         }
 
-        public Task<PublicUserDTO> GetPublicUserProfile(Guid userId)
+        public async Task<UserPublicDTO> GetPublicUserProfileAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            if (userId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+            var userProfile = await _userRepository.GetProfileAsync(userId);
+
+            if (userProfile == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+            var userProfileMap = _mapper.Map<UserPublicDTO>(userProfile);
+
+            if (userProfileMap == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
+            }
+            return userProfileMap;
         }
     }
 }

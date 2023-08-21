@@ -14,7 +14,7 @@ namespace PartyRoom.WebAPI.Services
         private readonly JwtSettings _jwtSettings;
         public JwtService(IOptions<JwtSettings> jwtSettings)
         {
-                _jwtSettings = jwtSettings.Value;
+            _jwtSettings = jwtSettings.Value;
         }
         public string GetToken(ApplicationUser user, IEnumerable<Claim> pronicpal)
         {

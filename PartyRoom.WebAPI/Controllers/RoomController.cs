@@ -21,29 +21,29 @@ namespace PartyRoom.WebAPI.Controllers
 
         [HttpPost]
         [Authorize(RoleConstants.RoleUser)]
-        public async Task<IActionResult> CreateRoom(RoomCreateDTO createModel)
+        public async Task<IActionResult> Post(RoomCreateDTO createModel)
         {
             var userId = _jwtService.GetUserIdByToken(HttpContext);
             try
             {
                 await _roomService.CreateRoomAsync(createModel, userId);
-                return StatusCode(StatusCodes.Status200OK,"Комната создана");
+                return StatusCode(StatusCodes.Status200OK, "Комната создана");
             }
             catch (ArgumentNullException)
             {
-                return StatusCode(StatusCodes.Status400BadRequest,"Не удалось создать комнату, model is null");
+                return StatusCode(StatusCodes.Status400BadRequest, "Не удалось создать комнату, model is null");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
-                return StatusCode(StatusCodes.Status404NotFound,"Нет такого пользователя");
+                return StatusCode(StatusCodes.Status404NotFound, "Нет такого пользователя");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
             {
-                return StatusCode(StatusCodes.Status501NotImplemented,"Ошибка сервера, не удалось смаппить данные");
+                return StatusCode(StatusCodes.Status501NotImplemented, "Ошибка сервера, не удалось смаппить данные");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,"Не удалось создать комнату");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Не удалось создать комнату");
             }
         }
 
@@ -71,84 +71,26 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetRoom")]
-        [Authorize(RoleConstants.RoleUser)]
-        public async Task<IActionResult> GetRoom([FromQuery] string link)
+        [HttpGet]
+        [Authorize(RoleConstants.RoleUser)] // TODO: Добавить нормальный GET запрос
+        public async Task<IActionResult> Get([FromQuery] string? link, [FromQuery] Guid? id)
         {
-            var room = await _roomService.GetRoomAsync(link);
-            return Ok(room);
-        }
-
-        [HttpGet("Users")]
-        public async Task<IActionResult> GetUsersByRoomId(Guid roomId)
-        {
-            try
+            if (id != Guid.Empty && id != null)
             {
-                var users = await _roomService.GetUsersByRoomAsync(roomId);
-                return Ok(users);
+                var roomById = await _roomService.GetRoomInfoAsync(id.Value);
+                return Ok(roomById);
             }
-            catch (ArgumentNullException)
+            else if (!string.IsNullOrEmpty(link))
             {
-                return NotFound();
+                var roomByLink = await _roomService.GetRoomAsync(link);
+                return Ok(roomByLink);
             }
-            catch (InvalidCastException ex) when (ex.Message == ExceptionMessages.SearchFailed)
+            else
             {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
-            {
-                return StatusCode(400, "Ошибка при маппинге данных.");
-            }
-            catch
-            {
-                return BadRequest();
+                return BadRequest("Invalid parameters");
             }
         }
 
-        [HttpGet()]
-        public async Task<IActionResult> GetRoomsByUserId(Guid userId)
-        {
-            try
-            {
-                var rooms = await _roomService.GetRoomsByUserIdAsync(userId);
-                return Ok(rooms);
-            }
-            catch (ArgumentNullException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpGet("Room")]
-        public async Task<IActionResult> GetRoomsByUser()
-        {
-            var userId = _jwtService.GetUserIdByToken(HttpContext);
-            try
-            {
-                var rooms = await _roomService.GetRoomsByUserIdAsync(userId);
-                return Ok(rooms);
-            }
-            catch (ArgumentNullException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
-            {
-                return BadRequest();
-            }
-        }
 
         [HttpDelete("DeleteUserFromRoomById")]
         public async Task<IActionResult> DeleteUserFromRoom(Guid userId, Guid roomId)
@@ -172,8 +114,8 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpDelete("DeleteUserFromRoomByUser")]
-        public async Task<IActionResult> DeleteUserFromRoom(Guid roomId)
+        [HttpDelete("DisconnectFromRoom")]
+        public async Task<IActionResult> DisconnectFromRoom(Guid roomId)
         {
             var userId = _jwtService.GetUserIdByToken(HttpContext);
             try
@@ -195,22 +137,22 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
         [HttpDelete]
-        public async Task<IActionResult> DeletRoomById(Guid roomId)
+        public async Task<IActionResult> Delete(Guid roomId)
         {
             try
             {
                 await _roomService.DeleteRoomAsync(roomId);
                 return Ok();
             }
-            catch(ArgumentNullException)
+            catch (ArgumentNullException)
             {
                 return NotFound();
             }
-            catch(InvalidOperationException ex) when(ex.Message == ExceptionMessages.SearchFailed)
+            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
                 return NotFound();
             }
-            catch(InvalidOperationException ex) when(ex.Message == ExceptionMessages.DeletionFailed)
+            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.DeletionFailed)
             {
                 return BadRequest();
             }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PartyRoom.Contracts.DTOs.Room;
-using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain.Entities;
 using PartyRoom.Domain.Interfaces.Repository;
 using PartyRoom.Domain.Interfaces.Services;
@@ -58,7 +57,7 @@ namespace PartyRoom.Domain.Services
             }
 
             var userRooms = _userRoomRepository.GetUserRooms(roomId);
-            if (userRooms ==null)
+            if (userRooms == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
@@ -84,7 +83,7 @@ namespace PartyRoom.Domain.Services
             {
                 throw new ArgumentNullException(nameof(userId));
             }
-            if (!await _userRoomRepository.ExistsUserInRoomAsync(userId,roomId))
+            if (!await _userRoomRepository.ExistsUserInRoomAsync(userId, roomId))
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
@@ -93,49 +92,6 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.DeletionFailed);
             }
         }
-
-        public async Task<IEnumerable<RoomDto>> GetRoomsByUserIdAsync(Guid userId)
-        {
-            if (userId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(userId));
-            }
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null)
-            {
-                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
-            }
-            var rooms = await _userRoomRepository.GetRoomsByUserIdAsync(userId);
-            var roomsMap = _mapper.Map<IEnumerable<RoomDto>>(rooms);
-            if (roomsMap == null)
-            {
-                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
-            }
-            return roomsMap;
-        }
-
-        public async Task<IEnumerable<PublicUserDTO>> GetUsersByRoomAsync(Guid roomId)
-        {
-            if (roomId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(roomId));
-            }
-            if (!await _roomRepository.ExistsIdAsync(roomId))
-            {
-                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
-            }
-
-            var users = await _userRoomRepository.GetUsersAsync(roomId);
-            var usersMap = _mapper.Map<IEnumerable<PublicUserDTO>>(users);
-
-            if (usersMap == null)
-            {
-                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
-            }
-
-            return usersMap;
-        }
-
         public async Task JoinToRoomAsync(string connectLink, Guid userId)
         {
             if (string.IsNullOrEmpty(connectLink) || userId == Guid.Empty)
@@ -160,7 +116,7 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
             //Проверка eсли пользватель находитсья в комтане
-            if( await _userRoomRepository.ExistsUserInRoomAsync(userId, room.Id))
+            if (await _userRoomRepository.ExistsUserInRoomAsync(userId, room.Id))
             {
                 throw new InvalidOperationException(ExceptionMessages.CreationFailed);
             }
@@ -176,9 +132,9 @@ namespace PartyRoom.Domain.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var currentDate = DateTime.Now;
+                var currentDate = DateTime.UtcNow;
 
-                var roomsToProcess = await  _roomRepository.Rooms
+                var roomsToProcess = await _roomRepository.Rooms
                     .Where(room => room.StartDate <= currentDate && room.IsStarted == false)
                     .ToListAsync(stoppingToken);
 
@@ -198,15 +154,15 @@ namespace PartyRoom.Domain.Services
         public async Task FormationDestinationUser(Guid roomId)
         {
             var userRooms = await _userRoomRepository.UserRooms.Where(ur => ur.RoomId == roomId).ToListAsync();
-            var users = userRooms.Select(u=>u.UserId);
+            var users = userRooms.Select(u => u.UserId);
 
             List<Guid> availableDestinations = new List<Guid>(userRooms.Count);
-            foreach(var userRoom in userRooms) 
+            foreach (var userRoom in userRooms)
             {
                 availableDestinations.Add(userRoom.UserId);
             }
             Random random = new Random();
-            foreach (var userRoom  in userRooms)
+            foreach (var userRoom in userRooms)
             {
                 int randomIndex = random.Next(availableDestinations.Count);
                 // Исключаем возможность выбора текущего UserId в качестве DestinationUserId
@@ -216,9 +172,9 @@ namespace PartyRoom.Domain.Services
                 }
                 availableDestinations.RemoveAt(randomIndex);
             }
-            if(! await _userRoomRepository.UpdateAsync(userRooms)) 
+            if (!await _userRoomRepository.UpdateAsync(userRooms))
             {
-                throw new  InvalidOperationException(ExceptionMessages.UpdateFailed);
+                throw new InvalidOperationException(ExceptionMessages.UpdateFailed);
             }
         }
         private async Task<string> GenerateUniqueSlug()
@@ -249,8 +205,10 @@ namespace PartyRoom.Domain.Services
 
         public async Task CreateTestRoomAsync()
         {
-            var author = _userManager.Users.FirstOrDefault(); 
-            var room = new Room { Author = author,
+            var author = _userManager.Users.FirstOrDefault();
+            var room = new Room
+            {
+                Author = author,
                 AuthorId = author.Id,
                 Name = "Тестовая комната",
                 Price = 500,
@@ -270,19 +228,21 @@ namespace PartyRoom.Domain.Services
             }
         }
 
-        public async Task<RoomDto> GetRoomAsync(Guid roomId)
+        public async Task<RoomInfoDTO> GetRoomAsync(Guid roomId)
         {
-            if(roomId == Guid.Empty)
+            if (roomId == Guid.Empty)
             {
                 throw new ArgumentNullException();
             }
             var room = await _roomRepository.GetByIdAsync(roomId);
-            if(room == null)
+            if (room == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
-            var roomMap = _mapper.Map<RoomDto>(room);
-            if(roomMap == null)
+            var roomMap = _mapper.Map<RoomInfoDTO>(room);
+            roomMap.QuantityUsers = _userRoomRepository.UserRooms.Where(r => r.RoomId == roomId).Count();
+
+            if (roomMap == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.MappingFailed);
             }
@@ -296,16 +256,39 @@ namespace PartyRoom.Domain.Services
                 throw new ArgumentNullException();
             }
             var room = await _roomRepository.GetRoomByLinkAsync(link);
-            if(room == null)
+            if (room == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
             var roomMap = _mapper.Map<RoomDto>(room);
-            if(roomMap == null)
+            if (roomMap == null)
             {
                 throw new InvalidOperationException(ExceptionMessages.MappingFailed);
             }
             return roomMap;
         }
+
+        public async Task<RoomInfoDTO> GetRoomInfoAsync(Guid roomId)
+        {
+            if (roomId == Guid.Empty)
+            {
+                throw new ArgumentNullException();
+            }
+            var room = await _roomRepository.GetByIdAsync(roomId);
+            if (room == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+            var roomMap = _mapper.Map<RoomInfoDTO>(room);
+            roomMap.QuantityUsers = _userRoomRepository.UserRooms.Where(r => r.RoomId == roomId).Count();
+
+            if (roomMap == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
+            }
+            return roomMap;
+        }
+
+
     }
 }

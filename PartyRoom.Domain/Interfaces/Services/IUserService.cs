@@ -8,13 +8,15 @@ namespace PartyRoom.Domain.Interfaces.Services
         #region User
         public IQueryable<ApplicationUser> Users { get; }
         public Task CreateUserAsync(UserRegistrationDTO createModel);
-        public Task UpdateUserAsync(PublicUserDTO updateModel);
+        public Task UpdateUserAsync(UserPublicDTO updateModel);
         public Task DeleteUserByIdAsync(Guid id);
-        public Task<PublicUserDTO> GetUserByIdAsync(Guid id);
-        public Task<PublicUserDTO> GetUserByNameAsync(string username);
+        public Task<UserPublicDTO> GetUserByIdAsync(Guid id);
+        public Task<UserPublicDTO> GetUserByNameAsync(string username);
         public Task<ICollection<UserDTO>> GetUsersByRoleNameAsync(string roleName);
         public Task<ICollection<UserDTO>> GetUsersByRoleIdAsync(Guid id);
         public Task<ApplicationUser> LoginAsync(UserLoginDTO loginModel);
+        public Task CreateTestUsers();
+        public Task SaveRefreshToken();
         #endregion
         #region Role
         public IQueryable<ApplicationRole> Roles { get; }

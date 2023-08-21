@@ -23,13 +23,13 @@ namespace PartyRoom.WebAPI.MappingProfiles.UserMapping
                   .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                   .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
 
-            CreateMap<PublicUserDTO, ApplicationUser>()
+            CreateMap<UserPublicDTO, ApplicationUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
-            CreateMap<ApplicationUser, PublicUserDTO>()
+            CreateMap<ApplicationUser, UserPublicDTO>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
@@ -39,14 +39,21 @@ namespace PartyRoom.WebAPI.MappingProfiles.UserMapping
             CreateMap<UserRegistrationDTO, ApplicationUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName));
+
 
             CreateMap<ApplicationUser, UserRegistrationDTO>()
                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
-               .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-               .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
+               .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName));
+
+            CreateMap<ApplicationUser, UserProfileDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                  .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                  .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+                  .ForMember(dest => dest.About, opt => opt.MapFrom(src => src.UserDetails.About))
+                  .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.UserDetails.ImagePath));
         }
     }
 }

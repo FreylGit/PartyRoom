@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain;
 using PartyRoom.Domain.Entities;
 using PartyRoom.Domain.Interfaces.Services;
+
 using PartyRoom.WebAPI.Services;
+using System.Security.Cryptography;
 
 namespace PartyRoom.WebAPI.Controllers
 {
@@ -22,70 +23,93 @@ namespace PartyRoom.WebAPI.Controllers
             _userService = userService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserRegistrationDTO model)
-        {
-            try
-            {
-                await _userService.CreateUserAsync(model);
-                return Ok("Пользователь успешно создан.");
-            }
-            catch (ArgumentNullException)
-            {
-                return BadRequest("Параметры запроса некорректны.");
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
-            {
-                return StatusCode(400, "Ошибка при маппинге данных.");
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.DuplicateItem)
-            {
-                return StatusCode(409, "Пользователь с таким именем уже существует.");
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
-            {
-                return StatusCode(500, "Не удалось создать пользователя.");
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
-            {
-                return StatusCode(500, "Не удалось найти роль 'User'.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return StatusCode(400, ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Произошла ошибка при создании пользователя.");
-            }
-        }
+        //[HttpPost("register")]
+        //public async Task<IActionResult> Register(UserRegistrationDTO model)
+        //{
+        //    try
+        //    {
+        //        await _userService.CreateUserAsync(model);
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login(UserLoginDTO loginModel)
-        {
-            try
-            {
-                var user = await _userService.LoginAsync(loginModel);
-                var claims = await _userManager.GetClaimsAsync(user);
-                var token = _jwtService.GetToken(user, claims);
-                //return Ok(new { Token = token });
-                return Ok(token);
-            }
-            catch (ArgumentNullException)
-            {
-                return BadRequest("Параметры запроса некорректны.");
-            }
-            catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
-            {
-                return StatusCode(400, "Не удалось найти пользователя с таким логином и паролем");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Произошла ошибка при создании токена");
-            }
-        }
+        //        return StatusCode(StatusCodes.Status202Accepted, "Пользователь успешно создан.");
+        //    }
+        //    catch (ArgumentNullException)
+        //    {
+        //        return BadRequest("Параметры запроса некорректны.");
+        //    }
+        //    catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
+        //    {
+        //        return StatusCode(StatusCodes.Status501NotImplemented, "Ошибка при маппинге данных.");
+        //    }
+        //    catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.DuplicateItem)
+        //    {
+        //        return StatusCode(StatusCodes.Status409Conflict, "Пользователь с таким именем уже существует.");
+        //    }
+        //    catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "Не удалось создать пользователя.");
+        //    }
+        //    catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
+        //    {
+        //        return StatusCode(StatusCodes.Status404NotFound, "Не удалось найти роль 'User'.");
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "Произошла ошибка при создании пользователя.");
+        //    }
+        //}
 
-        [HttpDelete("DeleteUser")]
+        //[HttpPost("Login")]
+        //public async Task<IActionResult> Login(UserLoginDTO loginModel)
+        //{
+        //    try
+        //    {
+        //        var user = await _userService.LoginAsync(loginModel);
+        //        var claims = await _userManager.GetClaimsAsync(user);
+        //        var token = _jwtService.GetToken(user, claims);
+        //        var refreshToken = GenerateRefreshToken();
+        //        SetRefreshToken(refreshToken);
+        //        //return Ok(new { Token = token });
+        //        return Ok(token);
+        //    }
+        //    catch (ArgumentNullException)
+        //    {
+        //        return BadRequest("Параметры запроса некорректны.");
+        //    }
+        //    catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
+        //    {
+        //        return StatusCode(400, "Не удалось найти пользователя с таким логином и паролем");
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(500, "Произошла ошибка при создании токена");
+        //    }
+        //}
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(65)),
+                Expires = DateTime.Now.AddDays(7),
+                Created = DateTime.Now
+            };
+            return refreshToken;
+
+        }
+        private void SetRefreshToken(Domain.Entities.RefreshToken newRefreshToken)
+        {
+            var cookieOprions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires,
+            };
+            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOprions);
+
+        }
+        [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
@@ -107,18 +131,11 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpPost("CreateRole")]
-        public async Task<IActionResult> CreateRole(string roleName)
+        [HttpPost("CreateTestUsers")]
+        public async Task<IActionResult> CreateTestUsers()
         {
-            try
-            {
-                await _userService.CreateRoleAsync(roleName);
-                return Ok("Роль создана");
-            }
-            catch
-            {
-                return BadRequest("Ошибка при создании роли");
-            }
+            await _userService.CreateTestUsers();
+            return Ok("Тестовые пользователи загрузились");
         }
     }
 }

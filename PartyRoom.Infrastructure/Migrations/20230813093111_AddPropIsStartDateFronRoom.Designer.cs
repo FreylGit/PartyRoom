@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PartyRoom.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PartyRoom.Infrastructure.Data;
 namespace PartyRoom.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230813093111_AddPropIsStartDateFronRoom")]
+    partial class AddPropIsStartDateFronRoom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,13 +158,13 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("02ad3e85-9c6f-4a4e-9ae9-a25631bf8172"),
+                            Id = new Guid("67de806f-338c-418d-bbe1-563d64406704"),
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("b46759cf-b2f4-45c9-bb6d-079f731733d0"),
+                            Id = new Guid("681aac16-9f08-4fca-90f2-5c099f23d30c"),
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -180,7 +183,7 @@ namespace PartyRoom.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateRegistration")
@@ -247,26 +250,6 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("PartyRoom.Domain.Entities.RefreshToken", b =>
-                {
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ApplicationUserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("PartyRoom.Domain.Entities.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -305,22 +288,6 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("PartyRoom.Domain.Entities.UserDetails", b =>
-                {
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("About")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ApplicationUserId");
-
-                    b.ToTable("UserDetails");
                 });
 
             modelBuilder.Entity("PartyRoom.Domain.Entities.UserRoom", b =>
@@ -392,17 +359,6 @@ namespace PartyRoom.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PartyRoom.Domain.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("PartyRoom.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithOne("RefreshToken")
-                        .HasForeignKey("PartyRoom.Domain.Entities.RefreshToken", "ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("PartyRoom.Domain.Entities.Room", b =>
                 {
                     b.HasOne("PartyRoom.Domain.Entities.ApplicationUser", "Author")
@@ -412,17 +368,6 @@ namespace PartyRoom.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("PartyRoom.Domain.Entities.UserDetails", b =>
-                {
-                    b.HasOne("PartyRoom.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithOne("UserDetails")
-                        .HasForeignKey("PartyRoom.Domain.Entities.UserDetails", "ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("PartyRoom.Domain.Entities.UserRoom", b =>
@@ -447,12 +392,6 @@ namespace PartyRoom.Infrastructure.Migrations
             modelBuilder.Entity("PartyRoom.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("CreatedRooms");
-
-                    b.Navigation("RefreshToken")
-                        .IsRequired();
-
-                    b.Navigation("UserDetails")
-                        .IsRequired();
 
                     b.Navigation("UserRoom");
                 });

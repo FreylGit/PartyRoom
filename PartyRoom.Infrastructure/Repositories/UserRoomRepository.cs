@@ -153,5 +153,11 @@ namespace PartyRoom.Infrastructure.Repositories
             _context.UserRoom.Remove(userRoom);
             return await SaveAsync(); 
         }
+
+        public async Task<bool> UpdateAsync(List<UserRoom> userRooms)
+        {
+            _context.UserRoom.UpdateRange(userRooms);
+            return await SaveAsync();
+        }
     }
 }

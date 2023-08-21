@@ -8,6 +8,8 @@ namespace PartyRoom.Infrastructure.Data
     {
         public DbSet<Room> Rooms { get; set; }
         public DbSet<UserRoom> UserRoom { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<UserDetails> UserDetails { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -39,6 +41,16 @@ namespace PartyRoom.Infrastructure.Data
                 .WithMany(r => r.UserRoom)
                 .HasForeignKey(ur => ur.RoomId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.RefreshToken)
+                .WithOne(rt => rt.ApplicationUser)
+                .HasForeignKey<RefreshToken>(rt => rt.ApplicationUserId);
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.UserDetails)
+                .WithOne(ud => ud.ApplicationUser)
+                .HasForeignKey<UserDetails>(ur => ur.ApplicationUserId);
+
         }
 
         private static void CreateRole(ModelBuilder modelBuilder)

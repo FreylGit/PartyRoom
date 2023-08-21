@@ -9,6 +9,8 @@ namespace PartyRoom.Domain.Interfaces.Services
         public Task JoinToRoomAsync(string connectLink, Guid userId);
         public Task<IEnumerable<PublicUserDTO>> GetUsersByRoomAsync(Guid roomId);
         public Task<IEnumerable<RoomDto>> GetRoomsByUserIdAsync(Guid userId);
+        public Task<RoomDto> GetRoomAsync(Guid roomId);
+        public Task<RoomDto> GetRoomAsync(string link);
         public Task DisconnectUserFromRoom(Guid userId, Guid id);
         public Task DeleteRoomAsync(Guid roomId);
         public Task CheckStartRoomsAsync(CancellationToken stoppingToken);

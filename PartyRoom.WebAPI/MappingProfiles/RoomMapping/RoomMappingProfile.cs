@@ -10,22 +10,34 @@ namespace PartyRoom.WebAPI.MappingProfiles.RoomMapping
         {
             CreateMap<Room, RoomCreateDTO>()
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.StartDate, opt => opt.MapFrom(dest => dest.StartDate));
+
             CreateMap<RoomCreateDTO, Room>()
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+               .ForMember(dest=>dest.FinishDate,opt=>opt.MapFrom(src=>src.FinishDate));
 
             CreateMap<Room, RoomDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.FinishDate, opt => opt.MapFrom(src => src.FinishDate))
+                .ForMember(dest=>dest.Link,opt=>opt.MapFrom(src=>src.Link))
+                .ForMember(dest=>dest.IsStarted,opt=>opt.MapFrom(src=>src.IsStarted));
             CreateMap<RoomDto, Room>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId));
-            CreateMap<RoomCreateDTO, Room>();
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                .ForMember(dest => dest.FinishDate, opt => opt.MapFrom(src => src.FinishDate))
+                .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.Link))
+                .ForMember(dest => dest.IsStarted, opt => opt.MapFrom(src => src.IsStarted));
         }
     }
 }

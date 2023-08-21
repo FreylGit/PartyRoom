@@ -26,4 +26,8 @@
     <ProjectReference Include="..\PartyRoom.Infrastructure\PartyRoom.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

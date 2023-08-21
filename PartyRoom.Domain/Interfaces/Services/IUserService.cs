@@ -16,6 +16,7 @@ namespace PartyRoom.Domain.Interfaces.Services
         public Task<ICollection<UserDTO>> GetUsersByRoleIdAsync(Guid id);
         public Task<ApplicationUser> LoginAsync(UserLoginDTO loginModel);
         public Task CreateTestUsers();
+        public Task SaveRefreshToken();
         #endregion
         #region Role
         public IQueryable<ApplicationRole> Roles { get; }

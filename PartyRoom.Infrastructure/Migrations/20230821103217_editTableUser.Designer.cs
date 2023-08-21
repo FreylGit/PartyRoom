@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PartyRoom.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PartyRoom.Infrastructure.Data;
 namespace PartyRoom.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230821103217_editTableUser")]
+    partial class editTableUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,13 +158,13 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("02ad3e85-9c6f-4a4e-9ae9-a25631bf8172"),
+                            Id = new Guid("7f3cfe17-5d28-410b-a73a-5705804923d7"),
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("b46759cf-b2f4-45c9-bb6d-079f731733d0"),
+                            Id = new Guid("35c7410a-375d-4e04-aeb0-9629636cb8d5"),
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -307,22 +310,6 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("PartyRoom.Domain.Entities.UserDetails", b =>
-                {
-                    b.Property<Guid>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("About")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ApplicationUserId");
-
-                    b.ToTable("UserDetails");
-                });
-
             modelBuilder.Entity("PartyRoom.Domain.Entities.UserRoom", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -414,17 +401,6 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("PartyRoom.Domain.Entities.UserDetails", b =>
-                {
-                    b.HasOne("PartyRoom.Domain.Entities.ApplicationUser", "ApplicationUser")
-                        .WithOne("UserDetails")
-                        .HasForeignKey("PartyRoom.Domain.Entities.UserDetails", "ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-                });
-
             modelBuilder.Entity("PartyRoom.Domain.Entities.UserRoom", b =>
                 {
                     b.HasOne("PartyRoom.Domain.Entities.Room", "Room")
@@ -449,9 +425,6 @@ namespace PartyRoom.Infrastructure.Migrations
                     b.Navigation("CreatedRooms");
 
                     b.Navigation("RefreshToken")
-                        .IsRequired();
-
-                    b.Navigation("UserDetails")
                         .IsRequired();
 
                     b.Navigation("UserRoom");

@@ -19,7 +19,7 @@ namespace PartyRoom.WebAPI.Controllers
             _roomService = roomService;
         }
 
-        [HttpPost("CreateRoom")]
+        [HttpPost]
         [Authorize(RoleConstants.RoleUser)]
         public async Task<IActionResult> CreateRoom(RoomCreateDTO createModel)
         {
@@ -27,23 +27,23 @@ namespace PartyRoom.WebAPI.Controllers
             try
             {
                 await _roomService.CreateRoomAsync(createModel, userId);
-                return Ok("Комната создана");
+                return StatusCode(StatusCodes.Status200OK,"Комната создана");
             }
             catch (ArgumentNullException)
             {
-                return BadRequest("Не удалось создать комнату, model is null");
+                return StatusCode(StatusCodes.Status400BadRequest,"Не удалось создать комнату, model is null");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
-                return NotFound("Нет такого пользователя");
+                return StatusCode(StatusCodes.Status404NotFound,"Нет такого пользователя");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
             {
-                return BadRequest("Ошибка сервера, не удалось смаппить данные");
+                return StatusCode(StatusCodes.Status501NotImplemented,"Ошибка сервера, не удалось смаппить данные");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
             {
-                return BadRequest("Не удалось создать комнату");
+                return StatusCode(StatusCodes.Status500InternalServerError,"Не удалось создать комнату");
             }
         }
 
@@ -71,7 +71,15 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetUsersByRoomId")]
+        [HttpGet("GetRoom")]
+        [Authorize(RoleConstants.RoleUser)]
+        public async Task<IActionResult> GetRoom([FromQuery] string link)
+        {
+            var room = await _roomService.GetRoomAsync(link);
+            return Ok(room);
+        }
+
+        [HttpGet("Users")]
         public async Task<IActionResult> GetUsersByRoomId(Guid roomId)
         {
             try
@@ -97,7 +105,7 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetRoomsByUserId")]
+        [HttpGet()]
         public async Task<IActionResult> GetRoomsByUserId(Guid userId)
         {
             try
@@ -119,7 +127,7 @@ namespace PartyRoom.WebAPI.Controllers
             }
         }
 
-        [HttpGet("GetRoomsByUser")]
+        [HttpGet("Room")]
         public async Task<IActionResult> GetRoomsByUser()
         {
             var userId = _jwtService.GetUserIdByToken(HttpContext);
@@ -186,7 +194,7 @@ namespace PartyRoom.WebAPI.Controllers
                 return BadRequest();
             }
         }
-        [HttpDelete("DeleteRoomById")]
+        [HttpDelete]
         public async Task<IActionResult> DeletRoomById(Guid roomId)
         {
             try

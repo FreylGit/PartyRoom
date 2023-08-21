@@ -4,7 +4,9 @@ using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain;
 using PartyRoom.Domain.Entities;
 using PartyRoom.Domain.Interfaces.Services;
+
 using PartyRoom.WebAPI.Services;
+using System.Security.Cryptography;
 
 namespace PartyRoom.WebAPI.Controllers
 {
@@ -28,7 +30,7 @@ namespace PartyRoom.WebAPI.Controllers
             try
             {
                 await _userService.CreateUserAsync(model);
-                return Ok("Пользователь успешно создан.");
+                return StatusCode(StatusCodes.Status202Accepted, "Пользователь успешно создан.");
             }
             catch (ArgumentNullException)
             {
@@ -36,27 +38,27 @@ namespace PartyRoom.WebAPI.Controllers
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.MappingFailed)
             {
-                return StatusCode(400, "Ошибка при маппинге данных.");
+                return StatusCode(StatusCodes.Status501NotImplemented, "Ошибка при маппинге данных.");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.DuplicateItem)
             {
-                return StatusCode(409, "Пользователь с таким именем уже существует.");
+                return StatusCode(StatusCodes.Status409Conflict, "Пользователь с таким именем уже существует.");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.CreationFailed)
             {
-                return StatusCode(500, "Не удалось создать пользователя.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Не удалось создать пользователя.");
             }
             catch (InvalidOperationException ex) when (ex.Message == ExceptionMessages.SearchFailed)
             {
-                return StatusCode(500, "Не удалось найти роль 'User'.");
+                return StatusCode(StatusCodes.Status404NotFound, "Не удалось найти роль 'User'.");
             }
             catch (InvalidOperationException ex)
             {
-                return StatusCode(400, ex.Message);
+                return StatusCode(StatusCodes.Status400BadRequest, ex.Message);
             }
             catch (Exception)
             {
-                return StatusCode(500, "Произошла ошибка при создании пользователя.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Произошла ошибка при создании пользователя.");
             }
         }
 
@@ -68,6 +70,8 @@ namespace PartyRoom.WebAPI.Controllers
                 var user = await _userService.LoginAsync(loginModel);
                 var claims = await _userManager.GetClaimsAsync(user);
                 var token = _jwtService.GetToken(user, claims);
+                var refreshToken = GenerateRefreshToken();
+                SetRefreshToken(refreshToken);
                 //return Ok(new { Token = token });
                 return Ok(token);
             }
@@ -84,8 +88,28 @@ namespace PartyRoom.WebAPI.Controllers
                 return StatusCode(500, "Произошла ошибка при создании токена");
             }
         }
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(65)),
+                Expires = DateTime.Now.AddDays(7),
+                Created = DateTime.Now
+            };
+            return refreshToken;
 
-        [HttpDelete("DeleteUser")]
+        }
+        private void SetRefreshToken(Domain.Entities.RefreshToken newRefreshToken)
+        {
+            var cookieOprions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires,
+            };
+            Response.Cookies.Append("refreshToken",newRefreshToken.Token,cookieOprions);
+           
+        }
+        [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
@@ -104,20 +128,6 @@ namespace PartyRoom.WebAPI.Controllers
             catch (Exception)
             {
                 return StatusCode(500, "Произошла ошибка при удалении пользователя");
-            }
-        }
-
-        [HttpPost("CreateRole")]
-        public async Task<IActionResult> CreateRole(string roleName)
-        {
-            try
-            {
-                await _userService.CreateRoleAsync(roleName);
-                return Ok("Роль создана");
-            }
-            catch
-            {
-                return BadRequest("Ошибка при создании роли");
             }
         }
 

@@ -269,5 +269,43 @@ namespace PartyRoom.Domain.Services
                 await _userRoomRepository.CreateAsync(new UserRoom { Room = room, UserId = user.Id });
             }
         }
+
+        public async Task<RoomDto> GetRoomAsync(Guid roomId)
+        {
+            if(roomId == Guid.Empty)
+            {
+                throw new ArgumentNullException();
+            }
+            var room = await _roomRepository.GetByIdAsync(roomId);
+            if(room == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+            var roomMap = _mapper.Map<RoomDto>(room);
+            if(roomMap == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
+            }
+            return roomMap;
+        }
+
+        public async Task<RoomDto> GetRoomAsync(string link)
+        {
+            if (string.IsNullOrEmpty(link))
+            {
+                throw new ArgumentNullException();
+            }
+            var room = await _roomRepository.GetRoomByLinkAsync(link);
+            if(room == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
+            var roomMap = _mapper.Map<RoomDto>(room);
+            if(roomMap == null)
+            {
+                throw new InvalidOperationException(ExceptionMessages.MappingFailed);
+            }
+            return roomMap;
+        }
     }
 }

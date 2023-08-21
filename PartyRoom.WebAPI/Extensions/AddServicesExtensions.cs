@@ -13,12 +13,16 @@ namespace PartyRoom.WebAPI.Extensions
         {
             services.AddScoped<IRoomRepository, RoomRepository>();
             services.AddScoped<IUserRoomRepository, UserRoomRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ITokenRepository, TokenRepository>();
         }
         public static void AddServices(this IServiceCollection services)
         {
             services.AddSingleton<JwtService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IProfileService, ProfileService>();
         }
     }
 }

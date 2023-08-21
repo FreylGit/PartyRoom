@@ -53,6 +53,7 @@ namespace PartyRoom.Domain.Services
                 var user = new ApplicationUser
                 {
                     UserName = $"user{i}@example.com",
+                    Email = $"user{i}@example.com",
                     FirstName = $"FirstName{i}",
                     LastName = $"LastName{i}",
                     DateOfBirth = DateTime.Now.AddYears(-25).AddDays(i), 
@@ -63,9 +64,10 @@ namespace PartyRoom.Domain.Services
             }
 
             var role = _roleManager.Roles.FirstOrDefault(r => r.Name == "User");
+            var password = "Qwer123@!ferwWW";
             foreach (var user in users)
             {
-                await _userManager.CreateAsync(user, "Qwer123@!ferwWW");
+                await _userManager.CreateAsync(user, password);
                 await _userManager.AddToRoleAsync(user,role.Name);
             }
         }
@@ -250,6 +252,11 @@ namespace PartyRoom.Domain.Services
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);
             }
             return userFind;
+        }
+
+        public Task SaveRefreshToken()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateRoleAsync(ApplicationRole updateModel)

@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using PartyRoom.Domain.Interfaces.Services;
-using PartyRoom.Domain.Services;
 using PartyRoom.Infrastructure.Data;
 using PartyRoom.WebAPI;
 using PartyRoom.WebAPI.Extensions;
 using PartyRoom.WebAPI.MappingProfiles.RoomMapping;
 using PartyRoom.WebAPI.MappingProfiles.UserMapping;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -42,6 +41,7 @@ builder.Services.AddSwaggerGen(c =>
                 new string[] {}
             }
         });
+    c.EnableAnnotations();
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("PartyRoom.Infrastructure")));

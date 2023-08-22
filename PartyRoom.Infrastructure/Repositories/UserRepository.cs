@@ -35,9 +35,10 @@ namespace PartyRoom.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<ApplicationUser> GetByIdAsync(Guid id)
+        public async Task<ApplicationUser> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(u=> u.Id == id);
+            return user;
         }
 
         public async Task<ApplicationUser> GetProfileAsync(Guid userId)
@@ -48,14 +49,16 @@ namespace PartyRoom.Infrastructure.Repositories
             return user;
         }
 
-        public Task<bool> SaveAsync()
+        public async Task<bool> SaveAsync()
         {
-            throw new NotImplementedException();
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
 
-        public Task<bool> UpdateAsync(ApplicationUser updateModel)
+        public async Task<bool> UpdateAsync(ApplicationUser updateModel)
         {
-            throw new NotImplementedException();
+            _context.Users.Update(updateModel); // TODO: Нужно проверить обновляется ли UserDetails
+            return await SaveAsync();
         }
     }
 }

@@ -34,14 +34,13 @@ namespace PartyRoom.Infrastructure.Repositories
             return true;
         }
 
-        public Task<bool> ExistsRefreshToken(string token)
+        public async Task<bool> ExistsRefreshToken(string token)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<IQueryable<RefreshToken>> GetAllAsync()
-        {
-            throw new NotImplementedException();
+            if(await _context.RefreshTokens.AnyAsync(r=>r.Token == token))
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<RefreshToken> GetByIdAsync(Guid userId)

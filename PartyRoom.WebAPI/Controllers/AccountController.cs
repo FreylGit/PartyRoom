@@ -4,7 +4,6 @@ using PartyRoom.Contracts.DTOs.User;
 using PartyRoom.Domain;
 using PartyRoom.Domain.Entities;
 using PartyRoom.Domain.Interfaces.Services;
-
 using PartyRoom.WebAPI.Services;
 
 namespace PartyRoom.WebAPI.Controllers
@@ -102,7 +101,6 @@ namespace PartyRoom.WebAPI.Controllers
                 newRefreshToken.ApplicationUserId = currentRefreshToken.ApplicationUserId;
                 await _accountService.UpdateRefreshTokenAsync(newRefreshToken);
                 SetRefreshToken(newRefreshToken);
-
             }
 
             var claims = await _userManager.GetClaimsAsync(user);

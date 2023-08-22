@@ -49,8 +49,12 @@ namespace PartyRoom.Domain.Services
             }
         }
 
-        public async Task DeleteRoomAsync(Guid roomId)
+        public async Task DeleteRoomAsync(Guid roomId, Guid userId)
         {
+            if (!await _roomRepository.IsAuthorAsync(roomId, userId))
+            {
+                throw new InvalidOperationException(ExceptionMessages.SearchFailed);
+            }
             if (!await _roomRepository.ExistsIdAsync(roomId))
             {
                 throw new InvalidOperationException(ExceptionMessages.SearchFailed);

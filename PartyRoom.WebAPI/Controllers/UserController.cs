@@ -88,27 +88,7 @@ namespace PartyRoom.WebAPI.Controllers
         //        return StatusCode(500, "Произошла ошибка при создании токена");
         //    }
         //}
-        private RefreshToken GenerateRefreshToken()
-        {
-            var refreshToken = new RefreshToken
-            {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(65)),
-                Expires = DateTime.Now.AddDays(7),
-                Created = DateTime.Now
-            };
-            return refreshToken;
 
-        }
-        private void SetRefreshToken(Domain.Entities.RefreshToken newRefreshToken)
-        {
-            var cookieOprions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = newRefreshToken.Expires,
-            };
-            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOprions);
-
-        }
         [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {

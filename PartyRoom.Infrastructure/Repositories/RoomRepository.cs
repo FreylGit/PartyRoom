@@ -100,15 +100,6 @@ namespace PartyRoom.Infrastructure.Repositories
         }
 
         /// <summary>
-        /// Получает все комнаты асинхронно.
-        /// </summary>
-        /// <returns>Коллекция всех комнат.</returns>
-        public async Task<IQueryable<Room>> GetAllAsync()
-        {
-            return await Task.FromResult(_context.Rooms.AsQueryable().AsNoTracking());
-        }
-
-        /// <summary>
         /// Получает комнату по идентификатору асинхронно.
         /// </summary>
         /// <param name="id">Идентификатор комнаты.</param>
@@ -128,6 +119,16 @@ namespace PartyRoom.Infrastructure.Repositories
         {
             var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Link == connectionLink);
             return room;
+        }
+
+        public async Task<bool> IsAuthorAsync(Guid roomId, Guid userId)
+        {
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId && r.AuthorId == userId);
+            if (room != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> SaveAsync()

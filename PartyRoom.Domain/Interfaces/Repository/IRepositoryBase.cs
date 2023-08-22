@@ -6,7 +6,6 @@
         Task<bool> UpdateAsync(T updateModel);
         Task<bool> DeleteAsync(T deleteModel);
         Task<T> GetByIdAsync(Guid id);
-        Task<IQueryable<T>> GetAllAsync();
         /// <summary>
         /// Асинхронно сохраняет изменения в базу данных через контекст DbContext.
         /// </summary>

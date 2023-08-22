@@ -9,7 +9,7 @@ namespace PartyRoom.Domain.Interfaces.Services
         public Task<RoomInfoDTO> GetRoomInfoAsync(Guid roomId);
         public Task<RoomDto> GetRoomAsync(string link);
         public Task DisconnectUserFromRoom(Guid userId, Guid id);
-        public Task DeleteRoomAsync(Guid roomId);
+        public Task DeleteRoomAsync(Guid roomId, Guid userId);
         public Task CheckStartRoomsAsync(CancellationToken stoppingToken);
 
         public Task CreateTestRoomAsync();

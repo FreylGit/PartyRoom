@@ -20,12 +20,19 @@ namespace PartyRoom.Domain.Services
             {
                 await _tokenRepository.CreateAsync(refreshToken);
             }
-            
         }
 
         public async Task<RefreshToken> GetRefreshTokenAsync(string token)
         {
             var refreshToken = await _tokenRepository.GetRefreshToken(token);
+            if (refreshToken == null)
+            {
+               // throw //TODO: Подумать
+            }
+            if (refreshToken.Expires < DateTime.UtcNow)
+            {
+
+            }
             return refreshToken;
         }
 
